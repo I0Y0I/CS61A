@@ -1,0 +1,14 @@
+;;; Return a list of pairs containing the elements of s.
+    ;;;
+    ;;; scm> (pair-up '(3 4 5 6 7 8))
+    ;;; ((3 4) (5 6) (7 8))
+    ;;; scm> (pair-up '(3 4 5 6 7 8 9))
+    ;;; ((3 4) (5 6) (7 8 9))
+    (define (pair-up s)
+        (if (<= (length s) 3) (cons s nil)
+            (cons (cons (car s) (cons (car (cdr s)) nil)) 
+                (pair-up (cdr (cdr s))))
+        ))
+
+    (expect (pair-up '(3 4 5 6 7 8)) ((3 4) (5 6) (7 8)) )
+    (expect (pair-up '(3 4 5 6 7 8 9)) ((3 4) (5 6) (7 8 9)) )
