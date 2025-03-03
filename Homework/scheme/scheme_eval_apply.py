@@ -34,8 +34,12 @@ def scheme_eval(expr, env, _=None): # Optional third argument is ignored
     else:
         # BEGIN PROBLEM 3
         "*** YOUR CODE HERE ***"
+        # 1. Evaluate the operator
         procedure = scheme_eval(first, env)
-        return scheme_apply(procedure, rest, env)
+        # 2. Evaluate all of the operands
+        operands = rest.map(lambda x: scheme_eval(x, env))
+        # 3. Return the result of scheme_eval
+        return scheme_apply(procedure, operands, env)
         # END PROBLEM 3
 
 def scheme_apply(procedure, args, env):
@@ -47,28 +51,29 @@ def scheme_apply(procedure, args, env):
     if isinstance(procedure, BuiltinProcedure):
         # BEGIN PROBLEM 2
         "*** YOUR CODE HERE ***"
-        arg_pass = []
+        # 1. Convert the scheme list to Python list
+        python_args = []
         while args:
-            arg_pass.append(scheme_eval(args.first, env))
+            python_args.append(args.first)
             args = args.rest
+        # 2. Append env at last if need env
         if procedure.need_env:
-            arg_pass.append(env)
+            python_args.append(env)
         # END PROBLEM 2
         try:
             # BEGIN PROBLEM 2
             "*** YOUR CODE HERE ***"
-            return procedure.py_func(*arg_pass)
+            # 3. Call builtin py_func on python list
+            return procedure.py_func(*python_args)
             # END PROBLEM 2
         except TypeError as err:
             raise SchemeError('incorrect number of arguments: {0}'.format(procedure))
     elif isinstance(procedure, LambdaProcedure):
         # BEGIN PROBLEM 9
         "*** YOUR CODE HERE ***"
-        a = args
-        while a is not nil:
-            a.first = scheme_eval(a.first, env)
-            a = a.rest
+        # 1. Create new child frame with args
         frame = procedure.env.make_child_frame(procedure.formals, args)
+        # 2. Reaturn evaluated result in child frame
         return eval_all(procedure.body, frame)
         # END PROBLEM 9
     elif isinstance(procedure, MuProcedure):
@@ -100,12 +105,15 @@ def eval_all(expressions, env):
     2
     """
     # BEGIN PROBLEM 6
-    # print("DEBUG:", expressions, env) 
+    "*** YOUR CODE HERE ***"
+    # 1. Set default return value to None
     r = None
-    while expressions is not nil:
+    # 2. Eval every expression in expressions
+    while expressions:
         r = scheme_eval(expressions.first, env)
         expressions = expressions.rest
-    return r # replace this with lines of your own code
+    # 3. Return evaluated value of the last expression
+    return r
     # END PROBLEM 6
 
 

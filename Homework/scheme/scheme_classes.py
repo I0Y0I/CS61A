@@ -36,7 +36,7 @@ class Frame:
         "*** YOUR CODE HERE ***"
         if symbol in self.bindings:
             return self.bindings[symbol]
-        if self.parent is not None:
+        if self.parent:
             return self.parent.lookup(symbol)
         # END PROBLEM 1
         raise SchemeError('unknown identifier: {0}'.format(symbol))
@@ -57,10 +57,13 @@ class Frame:
             raise SchemeError('Incorrect number of arguments to function call')
         # BEGIN PROBLEM 8
         "*** YOUR CODE HERE ***"
+        # 1. Create a new frame whose parent is self
         frame = Frame(self)
+        # 2. Define every formals in the new frame
         while formals is not nil:
             frame.define(formals.first, vals.first)
             formals, vals = formals.rest, vals.rest
+        # 3. Return the new frame
         return frame
         # END PROBLEM 8
 

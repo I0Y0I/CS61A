@@ -37,6 +37,7 @@ def do_define_form(expressions, env):
         validate_form(expressions, 2, 2) # Checks that expressions is a list of length exactly 2
         # BEGIN PROBLEM 4
         "*** YOUR CODE HERE ***"
+        # If it's a symbol, define symbol as evaluated value
         env.define(signature, scheme_eval(expressions.rest.first, env))
         return signature
         # END PROBLEM 4
@@ -44,14 +45,15 @@ def do_define_form(expressions, env):
         # defining a named procedure e.g. (define (f x y) (+ x y))
         # BEGIN PROBLEM 10
         "*** YOUR CODE HERE ***"
-        # extract symbol, formals, and body from signature
+        # 1. Extract symbol, formals, and body from signature
         symbol = signature.first
         formals = signature.rest
         body = expressions.rest
-        # create LambdaProcedure
+        # 2. Create LambdaProcedure
         procedure = do_lambda_form(Pair(formals, body), env)
-        # bind symbol to LambdaProcedure
+        # 3. Bind symbol to LambdaProcedure
         env.define(symbol, procedure)
+        # 4. Return symbol
         return symbol
         # END PROBLEM 10
     else:
@@ -68,6 +70,7 @@ def do_quote_form(expressions, env):
     validate_form(expressions, 1, 1)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    # Return the unevaluated operand directly
     return expressions.first
     # END PROBLEM 5
 
@@ -95,6 +98,7 @@ def do_lambda_form(expressions, env):
     validate_formals(formals)
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    # Lambda body is the rest of expressions
     return LambdaProcedure(formals, expressions.rest, env)
     # END PROBLEM 7
 
@@ -129,12 +133,15 @@ def do_and_form(expressions, env):
     """
     # BEGIN PROBLEM 12
     "*** YOUR CODE HERE ***"
+    # 1. Set default value True
     r = True
+    # 2. Eval every expression, if one of them is False, break and resturn
     while expressions is not nil:
         r = scheme_eval(expressions.first, env)
         if is_scheme_false(r):
-            return r
+            break
         expressions = expressions.rest
+    # 3. Return the last evaluated value
     return r
     # END PROBLEM 12
 
@@ -154,13 +161,15 @@ def do_or_form(expressions, env):
     """
     # BEGIN PROBLEM 12
     "*** YOUR CODE HERE ***"
+    # 1. Set default value False
     r = False
+    # 2. Eval every expression, if one of them is True, break and resturn
     while expressions is not nil:
-        # print("DEBUG:", expressions.first, env)
         r = scheme_eval(expressions.first, env)
         if is_scheme_true(r):
-            return r
+            break
         expressions = expressions.rest
+    # 3. Return the last evaluated value
     return r
     # END PROBLEM 12
 
@@ -182,6 +191,12 @@ def do_cond_form(expressions, env):
         if is_scheme_true(test):
             # BEGIN PROBLEM 13
             "*** YOUR CODE HERE ***"
+            # 1. If not have a corresponding result sub-expression,
+            #    return test
+            if not clause.rest:
+                return test
+            # 2. Return eval_all of sub-expression
+            return eval_all(clause.rest, env)
             # END PROBLEM 13
         expressions = expressions.rest
 
@@ -206,6 +221,19 @@ def make_let_frame(bindings, env):
     names = vals = nil
     # BEGIN PROBLEM 14
     "*** YOUR CODE HERE ***"
+    while bindings:
+        # 1. Check every element of bindings is len 2 Pair
+        validate_form(bindings.first, 2, 2)
+        # 2. Extract name and val from bindings
+        name = bindings.first.first
+        val = scheme_eval(bindings.first.rest.first, env)
+        # 3. Build names and vals
+        names = Pair(name, names)
+        vals = Pair(val, vals)
+        # 4. Continue to next element
+        bindings = bindings.rest
+    # 5. Check if there is duplicated name
+    validate_formals(names)
     # END PROBLEM 14
     return env.make_child_frame(names, vals)
 
@@ -248,6 +276,7 @@ def do_mu_form(expressions, env):
     validate_formals(formals)
     # BEGIN PROBLEM 11
     "*** YOUR CODE HERE ***"
+    # Same as do_lambda_form, but without env
     return MuProcedure(formals, expressions.rest)
     # END PROBLEM 11
 
