@@ -1,5 +1,3 @@
-import sys
-
 from pair import *
 from scheme_utils import *
 from ucb import main, trace
